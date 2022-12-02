@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "loja-python-mysql"
+version = "0.1.0"
+description = "Aplicação CRUD simples e direto ao ponto com Python e MySQL, para fins de estudo"
+authors = ["Edson Pimenta <edson.tibo@gmail.com>"]
+readme = "README.md"
+packages = [{include = "loja_python_mysql"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
