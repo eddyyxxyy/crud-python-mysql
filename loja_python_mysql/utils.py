@@ -14,7 +14,7 @@ def menu() -> None:
         + '4 - Deletar produtos.',
         flush=True,
     )
-    opcao = int(input('->'))
+    opcao = int(input('-> '))
     match opcao:
         case 1:
             listar()
