@@ -10,6 +10,12 @@ packages = [{include = "loja_python_mysql"}]
 python = "^3.11"
 
 
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^2.20.0"
+blue = "^0.9.1"
+isort = "^5.10.1"
+mypy = "^0.991"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
