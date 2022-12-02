@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "loja_python_mysql"}]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -15,6 +15,12 @@ pre-commit = "^2.20.0"
 blue = "^0.9.1"
 isort = "^5.10.1"
 mypy = "^0.991"
+pytest = "^7.2.0"
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 79
 
 [build-system]
 requires = ["poetry-core"]
