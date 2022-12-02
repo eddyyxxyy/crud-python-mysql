@@ -22,6 +22,9 @@ Para a criação deste CRUD estou utilizando as seguintes tecnologias:
 - MySQL 8.0.31;
 - Poetry 1.22.0;
 - pre-commit 2.20.0;
+- blue 0.9.1;
+- isort 5.10.1;
+- mypy 0.991;
 
 ## Motivação
 
