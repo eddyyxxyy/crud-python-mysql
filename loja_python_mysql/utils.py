@@ -1,9 +1,11 @@
+from locale import LC_MONETARY, currency
 from time import sleep
 
 import MySQLdb
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Confirm, Prompt
+from rich.table import Table
 
 cons = Console()
 promp = Prompt()
@@ -42,18 +44,17 @@ def conectar() -> MySQLdb.connect:
 
     :return: None
     """
-    with cons.status('[b]Conectando[/b] ao banco de dados...'):
-        sleep(2)
-        try:
-            connection = MySQLdb.connect(
-                db='pmysql',
-                host='localhost',
-                user='eddyxide',
-                passwd='leandoer',
-            )
-            return connection
-        except MySQLdb.Error as e:
-            print(f'Erro na conexão ao MySQL Server: {e}')
+    sleep(2)
+    try:
+        connection = MySQLdb.connect(
+            db='pmysql',
+            host='localhost',
+            user='eddyxide',
+            passwd='leandoer',
+        )
+        return connection
+    except MySQLdb.Error as e:
+        print(f'Erro na conexão ao MySQL Server: {e}')
 
 
 def desconectar(conexao: MySQLdb.connect) -> None:
@@ -62,7 +63,6 @@ def desconectar(conexao: MySQLdb.connect) -> None:
 
     :return: None
     """
-    cons.print('\nDesconectando do servidor...')
     if conexao:
         conexao.close()
 
@@ -74,6 +74,22 @@ def listar() -> None:
     :return: None
     """
     cons.print('\n[cyan b]Listando[/] produtos...')
+    conexao = conectar()
+    cursor = conexao.cursor()
+    cursor.execute('SELECT * FROM produtos')
+    produtos = cursor.fetchall()
+    if len(produtos) > 0:
+        table = Table(title='Produtos')
+        table.add_column('id', justify='right', style='cyan')
+        table.add_column('Nome', style='magenta')
+        table.add_column('Preço', justify='right', style='green')
+        table.add_column('Estoque', justify='right')
+        for produto in produtos:
+            table.add_row(produto[0], produto[1], produto[2], produto[3])
+        cons.print(table)
+    else:
+        cons.print('[b][red]Não[/] há produtos cadastrados...[/b]')
+    desconectar(conexao)
 
 
 def inserir() -> None:
@@ -112,11 +128,11 @@ def get_option(options: Panel, imput_prompt: str) -> None:
                 case '1' | 'listar' | 'list' | 'query':
                     with cons.status('[cyan b]Listando[/] produtos...'):
                         sleep(2)
-                        listar()
+                    listar()
                 case '2' | 'inserir' | 'insert' | 'add':
                     with cons.status('[green b]Inserindo[/] produto(s)...'):
                         sleep(2)
-                        inserir()
+                    inserir()
                 case '3' | 'atualizar' | 'update' | 'mod':
                     if conf.ask(
                         'Tem certeza que deseja atualizar o item?',
@@ -126,7 +142,7 @@ def get_option(options: Panel, imput_prompt: str) -> None:
                             '[yellow b]Atualizando[/] produto(s)...'
                         ):
                             sleep(2)
-                            atualizar()
+                        atualizar()
                 case '4' | 'deletar' | 'delete' | 'remove':
                     if conf.ask(
                         'Tem certeza que deseja deletar o item?',
@@ -134,11 +150,11 @@ def get_option(options: Panel, imput_prompt: str) -> None:
                     ):
                         with cons.status('[red b]Deletando[/] produto(s)...'):
                             sleep(2)
-                            deletar()
+                        deletar()
                 case '5' | 'sair' | 'q' | 'quit' | 'exit':
                     if conf.ask(
                         'Tem certeza que deseja sair da aplicação?',
-                        choices=['s', 'n'],
+                        choices=['y', 'n'],
                     ):
                         with cons.status(
                             '[deep_pink4]Finalizando[/] seção...'
