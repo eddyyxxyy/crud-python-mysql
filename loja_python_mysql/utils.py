@@ -29,6 +29,7 @@ def menu() -> None:
         [grey]Pressione [b]enter[/b] para listar produtos[/]
         """,
         title='[b]Gerenciamento de Produtos[/b]',
+        subtitle=':snake:',
     )
     cons.rule(title, align='center')
     get_option(options, '\n-> ')
