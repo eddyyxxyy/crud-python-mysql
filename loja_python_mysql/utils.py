@@ -1,5 +1,6 @@
 from time import sleep
 
+import MySQLdb
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Confirm, Prompt
@@ -35,22 +36,35 @@ def menu() -> None:
     get_option(options, '\n-> ')
 
 
-def conectar() -> None:
+def conectar() -> MySQLdb.connect:
     """
     Função para se conectar ao servidor.
 
     :return: None
     """
-    cons.print('\nConectando-se ao servidor...')
+    with cons.status('[b]Conectando[/b] ao banco de dados...'):
+        sleep(2)
+        try:
+            connection = MySQLdb.connect(
+                db='pmysql',
+                host='localhost',
+                user='eddyxide',
+                passwd='leandoer',
+            )
+            return connection
+        except MySQLdb.Error as e:
+            print(f'Erro na conexão ao MySQL Server: {e}')
 
 
-def desconectar() -> None:
+def desconectar(conexao: MySQLdb.connect) -> None:
     """
     Função para desconectar do servidor.
 
     :return: None
     """
     cons.print('\nDesconectando do servidor...')
+    if conexao:
+        conexao.close()
 
 
 def listar() -> None:
