@@ -9,6 +9,7 @@ packages = [{include = "loja_python_mysql"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 rich = "^12.6.0"
+mysqlclient = "^2.1.1"
 
 
 [tool.poetry.group.dev.dependencies]
