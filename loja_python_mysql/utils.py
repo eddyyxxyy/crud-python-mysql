@@ -1,4 +1,4 @@
-from locale import LC_MONETARY, currency
+from locale import LC_ALL, currency, setlocale
 from time import sleep
 
 import MySQLdb
@@ -6,6 +6,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Confirm, Prompt
 from rich.table import Table
+
+setlocale(LC_ALL, 'pt_BR.UTF-8')
 
 cons = Console()
 promp = Prompt()
@@ -85,7 +87,12 @@ def listar() -> None:
         table.add_column('Preço', justify='right', style='green')
         table.add_column('Estoque', justify='right')
         for produto in produtos:
-            table.add_row(produto[0], produto[1], produto[2], produto[3])
+            table.add_row(
+                produto[0],
+                produto[1],
+                currency(produto[2], grouping=True),
+                produto[3],
+            )
         cons.print(table)
     else:
         cons.print('[b][red]Não[/] há produtos cadastrados...[/b]')
