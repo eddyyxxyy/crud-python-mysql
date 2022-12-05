@@ -25,6 +25,7 @@ Para a criação deste CRUD estou utilizando as seguintes tecnologias:
 - blue 0.9.1;
 - isort 5.10.1;
 - mypy 0.991;
+- rich 12.6.0.
 
 
 ## Utilização da base de projeto ([v.0.1.0](https://github.com/eddyyxxyy/loja-python-mysql/tree/5a7b20b1f2636168028f058d8447d13dce5f2228))
