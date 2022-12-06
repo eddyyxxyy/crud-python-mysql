@@ -123,11 +123,12 @@ def inserir() -> None:
 
     nome: str = get_name('Informe o [b]nome[/b] do produto')
     preco: float = get_price('Informe o [b]preço[/b] do produto')
-    estoque: int = get_int('Informe a quantidade em [b]estoque[/b]')
+    estoque: int = get_int('Informe a [b]quantidade[/b] em [b]estoque[/b]')
 
     cursor.execute(
         f"INSERT INTO produtos (nome, preco, estoque) VALUES ('{nome}', '{preco}', '{estoque}')"
     )
+
     conexao.commit()
 
     if cursor.rowcount == 1:
@@ -153,10 +154,25 @@ def atualizar() -> None:
     :return: None
     """
     CONS.print('\n[yellow b]Atualizando[/] produto...')
-    CONF.ask(
-        'Tem certeza que deseja atualizar o item?',
-        choices=['y', 'n'],
+
+    conexao: Connection = conectar()
+    cursor = conexao.cursor()
+    codigo = get_int('Informe o id do produto')
+    nome: str = get_name('Informe o novo nome do produto')
+    preco: float = get_price('Informe o novo preço do produto')
+    estoque: int = get_int('Informe a nova quantidade em estoque')
+
+    cursor.execute(
+        f"UPDATE produtos SET nome='{nome}', preco='{preco}', estoque='{estoque}' WHERE id={codigo}"
     )
+    conexao.commit()
+
+    if cursor.rowcount == 1:
+        CONS.print(
+            f'\nO produto [b]"{nome}"[/b] foi atualizado com [green b]sucesso[/]!'
+        )
+    else:
+        CONS.print(f'\n[red b]Não[/] possível atualizar [b]{nome}[/b].')
     CONF.ask(
         'Pressione [b]enter[/b] para continuar',
         show_choices=False,
@@ -198,15 +214,9 @@ def get_option(imput_prompt: str) -> None:
                         sleep(0.4)
                     inserir()
                 case '3' | 'atualizar' | 'update' | 'mod':
-                    if CONF.ask(
-                        'Tem certeza que deseja atualizar o item?',
-                        choices=['y', 'n'],
-                    ):
-                        with CONS.status(
-                            '[yellow b]Atualizando[/] produto(s)...'
-                        ):
-                            sleep(0.4)
-                        atualizar()
+                    with CONS.status('[yellow b]Atualizando[/] produto(s)...'):
+                        sleep(0.4)
+                    atualizar()
                 case '4' | 'deletar' | 'delete' | 'remove':
                     with CONS.status('[red b]Deletando[/] produto(s)...'):
                         sleep(0.4)
@@ -239,7 +249,7 @@ def get_name(prompt: str) -> str:
 def get_price(prompt: str) -> float:
     preco: float = 0.0
     try:
-        preco = FloatPrompt.ask(prompt)
+        preco = float(FloatPrompt.ask(prompt))
         if preco <= 0:
             raise ValueError
         return preco
@@ -249,12 +259,12 @@ def get_price(prompt: str) -> float:
 
 
 def get_int(prompt: str) -> int:
-    estoque: int = 0
+    integer: int = 0
     try:
-        estoque = IntPrompt.ask(prompt)
-        if estoque < 0:
+        integer = IntPrompt.ask(prompt)
+        if integer < 0:
             raise ValueError
-        return estoque
+        return integer
     except ValueError:
-        CONS.print('[red i]Quantidade inválida...[/]')
-    return estoque
+        CONS.print('[red i]Valor inválido...[/]')
+    return integer
