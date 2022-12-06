@@ -13,6 +13,8 @@ três deles utilizão bancos relacionais e os outros não relacionais.
 Neste projeto em específico, como o nome do repositório sugere, é um CRUD para terminal
 com Python e MySQL.
 
+![preview](loja_python_mysql/img/current_state.gif)
+
 
 ## Ambiente de Desenvolvimento
 
@@ -25,6 +27,24 @@ Para a criação deste CRUD estou utilizando as seguintes tecnologias:
 - blue 0.9.1;
 - isort 5.10.1;
 - mypy 0.991;
+- types-mysqlclient 2.1.5.1;
+- rich 12.6.0.
+
+
+## Utilização
+
+O projeto está pronto, estável e funcionando de forma satisfatória. Sendo necessário
+somente a instalação das dependências em seu ambiente virtual.
+
+É só clonar o projeto, entrar no terminal no diretório raiz e então acessar o
+shell do poetry (assim podendo instalar as dependências) e, por fim, rodar o arquivo main.py
+contido na pasta loja_python_mysql:
+
+```shell
+poetry shell
+poetry install
+python loja_python_mysql/main.py
+```
 
 
 ## Utilização da base de projeto ([v.0.1.0](https://github.com/eddyyxxyy/loja-python-mysql/tree/5a7b20b1f2636168028f058d8447d13dce5f2228))
