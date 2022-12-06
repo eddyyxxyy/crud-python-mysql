@@ -384,6 +384,14 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
+name = "types-mysqlclient"
+version = "2.1.5.1"
+description = "Typing stubs for mysqlclient"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "typing-extensions"
 version = "4.4.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -411,7 +419,7 @@ testing = ["coverage (>=6.2)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "1673555b568e8b6c814ea866493e2c5e43dfd1abecc32e09c0121689034e704f"
+content-hash = "71f038ee6c87b7325522b4fedfeb5047a6664cd214d4902524196ea678cadfb6"
 
 [metadata.files]
 attrs = [
@@ -641,6 +649,10 @@ toml = [
 tomli = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
     {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
+]
+types-mysqlclient = [
+    {file = "types-mysqlclient-2.1.5.1.tar.gz", hash = "sha256:8f16d8b275e7f12a7bc463ac825980bd90f36c1a582183a0f73a78d472fcf397"},
+    {file = "types_mysqlclient-2.1.5.1-py3-none-any.whl", hash = "sha256:f38971ac8535b735021988118d4adbc1e3b35041596655b611e1534c3d3ef568"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.4.0-py3-none-any.whl", hash = "sha256:16fa4864408f655d35ec496218b85f79b3437c829e93320c7c9215ccfd92489e"},
