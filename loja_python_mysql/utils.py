@@ -3,6 +3,7 @@ from time import sleep
 
 import MySQLdb
 from MySQLdb import Connection
+from MySQLdb.cursors import Cursor
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Confirm, FloatPrompt, IntPrompt, Prompt
@@ -83,7 +84,7 @@ def listar() -> None:
     :return: None
     """
     conexao = conectar()
-    cursor = conexao.cursor()
+    cursor: Cursor = conexao.cursor()
     cursor.execute('SELECT * FROM produtos')
     produtos = cursor.fetchall()
     if len(produtos) > 0:
@@ -119,7 +120,7 @@ def inserir() -> None:
     :return: None
     """
     conexao: Connection = conectar()
-    cursor = conexao.cursor()
+    cursor: Cursor = conexao.cursor()
 
     nome: str = get_name('Informe o [b]nome[/b] do produto')
     preco: float = get_price('Informe o [b]preço[/b] do produto')
@@ -156,7 +157,7 @@ def atualizar() -> None:
     CONS.print('\n[yellow b]Atualizando[/] produto...')
 
     conexao: Connection = conectar()
-    cursor = conexao.cursor()
+    cursor: Cursor = conexao.cursor()
     codigo = get_int('Informe o id do produto')
     nome: str = get_name('Informe o novo nome do produto')
     preco: float = get_price('Informe o novo preço do produto')
@@ -188,10 +189,29 @@ def deletar() -> None:
     :return: None
     """
     CONS.print('\n[red b]Deletando[/] produto...')
-    CONF.ask(
-        'Tem certeza que deseja deletar o item?',
-        choices=['y', 'n'],
-    )
+
+    conexao: Connection = conectar()
+    cursor: Cursor = conexao.cursor()
+    codigo: int = get_int('Informe o id do produto à ser deletado')
+
+    cursor.execute(f'SELECT nome FROM produtos WHERE id={codigo}')
+    nome_produto: str = cursor.fetchall()[0][0]
+
+    if CONF.ask(
+        f'Confirmar deleção do produto "{nome_produto}" da base de dados'
+    ):
+        cursor.execute(f'DELETE FROM produtos WHERE id={codigo}')
+        conexao.commit()
+        CONS.print(
+            f'\nO produto "{nome_produto}" foi [b]deletado[/b] com [green b]sucesso[/]!'
+        )
+    else:
+        CONS.print(
+            f'\n[red b]Não[/] possível deletar o produto "{nome_produto}".'
+        )
+
+    desconectar(conexao)
+
     CONF.ask(
         'Pressione [b]enter[/b] para continuar',
         show_choices=False,
