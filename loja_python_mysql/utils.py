@@ -89,12 +89,14 @@ def listar() -> None:
     cursor: Cursor = CONEXAO.cursor()
     cursor.execute('SELECT * FROM produtos')
     produtos = cursor.fetchall()
+
     if len(produtos) > 0:
         table = Table(title='Produtos')
         table.add_column('id', justify='right', style='cyan')
         table.add_column('Nome', style='magenta')
         table.add_column('Preço', justify='right', style='green')
         table.add_column('Estoque', justify='right')
+
         for produto in produtos:
             table.add_row(
                 str(produto[0]),
@@ -165,6 +167,7 @@ def atualizar() -> None:
     cursor.execute(
         f"UPDATE produtos SET nome='{nome}', preco='{preco}', estoque='{estoque}' WHERE id={codigo}"
     )
+
     CONEXAO.commit()
 
     if cursor.rowcount == 1:
