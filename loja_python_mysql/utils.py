@@ -1,17 +1,20 @@
-from locale import LC_ALL, currency, setlocale
+from locale import LC_MONETARY, currency, setlocale
 from time import sleep
 
 import MySQLdb
+from MySQLdb import Connection
 from rich.console import Console
 from rich.panel import Panel
-from rich.prompt import Confirm, Prompt
+from rich.prompt import Confirm, FloatPrompt, IntPrompt, Prompt
 from rich.table import Table
 
-setlocale(LC_ALL, 'pt_BR.UTF-8')
+setlocale(LC_MONETARY, 'pt_BR.UTF-8')
 
-cons = Console()
-promp = Prompt()
-conf = Confirm()
+connection: Connection
+
+CONS = Console()
+PROMP = Prompt()
+CONF = Confirm()
 
 
 def menu() -> None:
@@ -31,21 +34,23 @@ def menu() -> None:
         [b]4[/b] - [red b]Deletar[/] produtos;
         [b]5[/b] - [deep_pink4]Sair[/] do programa.
 
-        [grey]Pressione [b]enter[/b] para listar produtos[/]
+        [grey]Pressione [b]enter[/b] para listar produtos ou digite "m", para abrir o menu novamente[/]
         """,
         title='[b]Gerenciamento de Produtos[/b]',
         subtitle=':snake:',
     )
-    cons.rule(title, align='center')
-    get_option(options, '\n-> ')
+    CONS.rule(title, align='center')
+    CONS.print(options)
+    get_option('\n-> ')
 
 
-def conectar() -> MySQLdb.connect:
+def conectar() -> Connection:
     """
     Função para se conectar ao servidor.
 
-    :return: None
+    :return: Connection
     """
+    global connection
     sleep(2)
     try:
         connection = MySQLdb.connect(
@@ -54,12 +59,14 @@ def conectar() -> MySQLdb.connect:
             user='eddyxide',
             passwd='leandoer',
         )
-        return connection
     except MySQLdb.Error as e:
         print(f'Erro na conexão ao MySQL Server: {e}')
+        return connection
+    else:
+        return connection
 
 
-def desconectar(conexao: MySQLdb.connect) -> None:
+def desconectar(conexao: Connection) -> None:
     """
     Função para desconectar do servidor.
 
@@ -75,7 +82,6 @@ def listar() -> None:
 
     :return: None
     """
-    cons.print('\n[cyan b]Listando[/] produtos...')
     conexao = conectar()
     cursor = conexao.cursor()
     cursor.execute('SELECT * FROM produtos')
@@ -88,14 +94,21 @@ def listar() -> None:
         table.add_column('Estoque', justify='right')
         for produto in produtos:
             table.add_row(
-                produto[0],
-                produto[1],
+                str(produto[0]),
+                str(produto[1]),
                 currency(produto[2], grouping=True),
-                produto[3],
+                str(produto[3]),
             )
-        cons.print(table)
+        CONS.print()
+        CONS.print(table)
+        CONF.ask(
+            '\nPressione [b]enter[/b] para continuar',
+            show_choices=False,
+            show_default=False,
+            default='y',
+        )
     else:
-        cons.print('[b][red]Não[/] há produtos cadastrados...[/b]')
+        CONS.print('[b][red]Não[/] há produtos cadastrados...[/b]')
     desconectar(conexao)
 
 
@@ -105,7 +118,32 @@ def inserir() -> None:
 
     :return: None
     """
-    cons.print('\n[green b]Inserindo[/] produto...')
+    conexao: Connection = conectar()
+    cursor = conexao.cursor()
+
+    nome: str = get_name('Informe o [b]nome[/b] do produto')
+    preco: float = get_price('Informe o [b]preço[/b] do produto')
+    estoque: int = get_int('Informe a quantidade em [b]estoque[/b]')
+
+    cursor.execute(
+        f"INSERT INTO produtos (nome, preco, estoque) VALUES ('{nome}', '{preco}', '{estoque}')"
+    )
+    conexao.commit()
+
+    if cursor.rowcount == 1:
+        CONS.print(
+            f'\nO produto [b]"{nome}"[/b] foi inserido com [green b]sucesso[/]!'
+        )
+    else:
+        CONS.print(f'\n[red b]Não[/] possível inserir [b]{nome}[/b].')
+
+    CONF.ask(
+        '\nPressione [b]enter[/b] para continuar',
+        show_choices=False,
+        show_default=False,
+        default='y',
+    )
+    desconectar(conexao)
 
 
 def atualizar() -> None:
@@ -114,7 +152,17 @@ def atualizar() -> None:
 
     :return: None
     """
-    cons.print('\n[yellow b]Atualizando[/] produto...')
+    CONS.print('\n[yellow b]Atualizando[/] produto...')
+    CONF.ask(
+        'Tem certeza que deseja atualizar o item?',
+        choices=['y', 'n'],
+    )
+    CONF.ask(
+        'Pressione [b]enter[/b] para continuar',
+        show_choices=False,
+        show_default=False,
+        default='y',
+    )
 
 
 def deletar() -> None:
@@ -123,54 +171,90 @@ def deletar() -> None:
 
     :return: None
     """
-    cons.print('\n[red b]Deletando[/] produto...')
+    CONS.print('\n[red b]Deletando[/] produto...')
+    CONF.ask(
+        'Tem certeza que deseja deletar o item?',
+        choices=['y', 'n'],
+    )
+    CONF.ask(
+        'Pressione [b]enter[/b] para continuar',
+        show_choices=False,
+        show_default=False,
+        default='y',
+    )
 
 
-def get_option(options: Panel, imput_prompt: str) -> None:
-    cons.print(options)
+def get_option(imput_prompt: str) -> None:
     while True:
         try:
-            opcao = promp.ask(imput_prompt, default='1').lower()
+            opcao = PROMP.ask(imput_prompt, default='1').lower()
             match opcao:
                 case '1' | 'listar' | 'list' | 'query':
-                    with cons.status('[cyan b]Listando[/] produtos...'):
-                        sleep(2)
+                    with CONS.status('[cyan b]Listando[/] produtos...'):
+                        sleep(0.4)
                     listar()
                 case '2' | 'inserir' | 'insert' | 'add':
-                    with cons.status('[green b]Inserindo[/] produto(s)...'):
-                        sleep(2)
+                    with CONS.status('[green b]Inserindo[/] produto(s)...'):
+                        sleep(0.4)
                     inserir()
                 case '3' | 'atualizar' | 'update' | 'mod':
-                    if conf.ask(
+                    if CONF.ask(
                         'Tem certeza que deseja atualizar o item?',
-                        choices=['s', 'n'],
+                        choices=['y', 'n'],
                     ):
-                        with cons.status(
+                        with CONS.status(
                             '[yellow b]Atualizando[/] produto(s)...'
                         ):
-                            sleep(2)
+                            sleep(0.4)
                         atualizar()
                 case '4' | 'deletar' | 'delete' | 'remove':
-                    if conf.ask(
-                        'Tem certeza que deseja deletar o item?',
-                        choices=['s', 'n'],
-                    ):
-                        with cons.status('[red b]Deletando[/] produto(s)...'):
-                            sleep(2)
-                        deletar()
+                    with CONS.status('[red b]Deletando[/] produto(s)...'):
+                        sleep(0.4)
+                    deletar()
                 case '5' | 'sair' | 'q' | 'quit' | 'exit':
-                    if conf.ask(
+                    if CONF.ask(
                         'Tem certeza que deseja sair da aplicação?',
                         choices=['y', 'n'],
                     ):
-                        with cons.status(
+                        with CONS.status(
                             '[deep_pink4]Finalizando[/] seção...'
                         ):
-                            sleep(2)
-                            cons.print('[deep_pink4]Seção finalizada...[/]')
+                            sleep(0.4)
+                            CONS.print('[deep_pink4]Seção finalizada...[/]')
                             exit()
+                case 'm' | 'menu':
+                    menu()
                 case _:
                     raise ValueError
             break
         except ValueError:
-            cons.print('[red i]Opção inválida, teste novamente...')
+            CONS.print('[red i]Opção inválida, teste novamente...')
+
+
+def get_name(prompt: str) -> str:
+    nome: str = PROMP.ask(prompt)
+    return nome.strip().title()
+
+
+def get_price(prompt: str) -> float:
+    preco: float = 0.0
+    try:
+        preco = FloatPrompt.ask(prompt)
+        if preco <= 0:
+            raise ValueError
+        return preco
+    except ValueError:
+        CONS.print('[red i]Valor inválido...[/]')
+    return preco
+
+
+def get_int(prompt: str) -> int:
+    estoque: int = 0
+    try:
+        estoque = IntPrompt.ask(prompt)
+        if estoque < 0:
+            raise ValueError
+        return estoque
+    except ValueError:
+        CONS.print('[red i]Quantidade inválida...[/]')
+    return estoque
