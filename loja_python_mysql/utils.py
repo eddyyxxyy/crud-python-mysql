@@ -11,8 +11,7 @@ from rich.table import Table
 
 setlocale(LC_MONETARY, 'pt_BR.UTF-8')
 
-connection: Connection
-
+CONEXAO: Connection
 CONS = Console()
 PROMP = Prompt()
 CONF = Confirm()
@@ -45,36 +44,40 @@ def menu() -> None:
     get_option('\n-> ')
 
 
-def conectar() -> Connection:
+def conectar() -> None:
     """
     Função para se conectar ao servidor.
 
     :return: Connection
     """
-    global connection
+    global CONEXAO
+
+    usuario = get_str('Informe seu nome de usuário')
+    senha = get_passwd('Informe a senha de seu usuário')
+    db = get_str('Informe o nome de sua base de dados')
+    servidor = get_str('Informe o host do servidor')
+
     sleep(2)
     try:
-        connection = MySQLdb.connect(
-            db='pmysql',
-            host='localhost',
-            user='eddyxide',
-            passwd='leandoer',
+        CONEXAO = MySQLdb.connect(
+            db=db,
+            host=servidor,
+            user=usuario,
+            passwd=senha,
         )
     except MySQLdb.Error as e:
-        print(f'Erro na conexão ao MySQL Server: {e}')
-        return connection
-    else:
-        return connection
+        print(f'\nErro na conexão ao MySQL Server: \n   {e}')
+        exit()
 
 
-def desconectar(conexao: Connection) -> None:
+def desconectar(conn: Connection) -> None:
     """
     Função para desconectar do servidor.
 
     :return: None
     """
-    if conexao:
-        conexao.close()
+    if conn:
+        conn.close()
 
 
 def listar() -> None:
@@ -83,8 +86,7 @@ def listar() -> None:
 
     :return: None
     """
-    conexao = conectar()
-    cursor: Cursor = conexao.cursor()
+    cursor: Cursor = CONEXAO.cursor()
     cursor.execute('SELECT * FROM produtos')
     produtos = cursor.fetchall()
     if len(produtos) > 0:
@@ -110,7 +112,6 @@ def listar() -> None:
         )
     else:
         CONS.print('[b][red]Não[/] há produtos cadastrados...[/b]')
-    desconectar(conexao)
 
 
 def inserir() -> None:
@@ -119,8 +120,8 @@ def inserir() -> None:
 
     :return: None
     """
-    conexao: Connection = conectar()
-    cursor: Cursor = conexao.cursor()
+    CONS.print('\n[yellow b]Inserindo[/] produto...')
+    cursor: Cursor = CONEXAO.cursor()
 
     nome: str = get_name('Informe o [b]nome[/b] do produto')
     preco: float = get_price('Informe o [b]preço[/b] do produto')
@@ -130,7 +131,7 @@ def inserir() -> None:
         f"INSERT INTO produtos (nome, preco, estoque) VALUES ('{nome}', '{preco}', '{estoque}')"
     )
 
-    conexao.commit()
+    CONEXAO.commit()
 
     if cursor.rowcount == 1:
         CONS.print(
@@ -145,7 +146,6 @@ def inserir() -> None:
         show_default=False,
         default='y',
     )
-    desconectar(conexao)
 
 
 def atualizar() -> None:
@@ -156,8 +156,7 @@ def atualizar() -> None:
     """
     CONS.print('\n[yellow b]Atualizando[/] produto...')
 
-    conexao: Connection = conectar()
-    cursor: Cursor = conexao.cursor()
+    cursor: Cursor = CONEXAO.cursor()
     codigo = get_int('Informe o id do produto')
     nome: str = get_name('Informe o novo nome do produto')
     preco: float = get_price('Informe o novo preço do produto')
@@ -166,7 +165,7 @@ def atualizar() -> None:
     cursor.execute(
         f"UPDATE produtos SET nome='{nome}', preco='{preco}', estoque='{estoque}' WHERE id={codigo}"
     )
-    conexao.commit()
+    CONEXAO.commit()
 
     if cursor.rowcount == 1:
         CONS.print(
@@ -190,8 +189,7 @@ def deletar() -> None:
     """
     CONS.print('\n[red b]Deletando[/] produto...')
 
-    conexao: Connection = conectar()
-    cursor: Cursor = conexao.cursor()
+    cursor: Cursor = CONEXAO.cursor()
     codigo: int = get_int('Informe o id do produto à ser deletado')
 
     cursor.execute(f'SELECT nome FROM produtos WHERE id={codigo}')
@@ -201,7 +199,7 @@ def deletar() -> None:
         f'Confirmar deleção do produto "{nome_produto}" da base de dados'
     ):
         cursor.execute(f'DELETE FROM produtos WHERE id={codigo}')
-        conexao.commit()
+        CONEXAO.commit()
         CONS.print(
             f'\nO produto "{nome_produto}" foi [b]deletado[/b] com [green b]sucesso[/]!'
         )
@@ -209,8 +207,6 @@ def deletar() -> None:
         CONS.print(
             f'\n[red b]Não[/] possível deletar o produto "{nome_produto}".'
         )
-
-    desconectar(conexao)
 
     CONF.ask(
         'Pressione [b]enter[/b] para continuar',
@@ -250,6 +246,7 @@ def get_option(imput_prompt: str) -> None:
                             '[deep_pink4]Finalizando[/] seção...'
                         ):
                             sleep(0.4)
+                            desconectar(CONEXAO)
                             CONS.print('[deep_pink4]Seção finalizada...[/]')
                             exit()
                 case 'm' | 'menu':
@@ -288,3 +285,13 @@ def get_int(prompt: str) -> int:
     except ValueError:
         CONS.print('[red i]Valor inválido...[/]')
     return integer
+
+
+def get_str(prompt: str) -> str:
+    nome: str = PROMP.ask(prompt)
+    return nome.strip()
+
+
+def get_passwd(prompt: str) -> str:
+    passwd: str = PROMP.ask(prompt, password=True)
+    return passwd.strip()
