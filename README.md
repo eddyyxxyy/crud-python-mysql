@@ -7,9 +7,6 @@ Aplicação CRUD simples e direto ao ponto com Python e MySQL.
 
 Este repositório tem como intuíto a prática e estudo das tecnologias utilizadas.
 
-Este projeto faz parte da criação de 6 CRUDS diferentes (ou não tão diferentes assim);
-três deles utilizão bancos relacionais e os outros não relacionais.
-
 Neste projeto em específico, como o nome do repositório sugere, é um CRUD para terminal
 com Python e MySQL.
 
