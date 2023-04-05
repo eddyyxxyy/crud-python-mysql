@@ -93,6 +93,8 @@ Deixo aqui a frase que me move, que me define os esforços em cada objetivo que 
 
 [LinkedIn](https://www.linkedin.com/in/eeddyyxxyy/ "Para contato profissional")
 
+[Gmail](mailto:dev.eddyyxxyy@gmail.com? "Para contato profissional via e-mail")
+
 ---
 
 ![Eddy](logo.png)
